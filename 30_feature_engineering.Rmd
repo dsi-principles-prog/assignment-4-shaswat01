@@ -106,7 +106,7 @@ normalize_columns <- function(df, vars) {
 
 Let's do the mean_normalisation:
 ```{r Mean_normalisation}
-select_cols<- c("Cl.thickness","Cell.shape","Cell.size","Marg.adhesion","Epith.c.size","Bl.cromatin","Normal.nucleoli","Bare.nuclei_imputed")
+select_cols<- c("Cl.thickness","Cell.shape","Marg.adhesion","Epith.c.size","Bl.cromatin","Normal.nucleoli","Bare.nuclei_imputed","Cell.size")
 Clean_BreastCancer <- Clean_BreastCancer%>%
   normalize_columns(select_cols)
 ```
