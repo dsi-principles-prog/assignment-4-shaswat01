@@ -1,0 +1,40 @@
+---
+title: "10-import"
+output: html_notebook
+---
+
+## Importing the libraries:
+```{r Importing the libraries}
+library(tidyverse)
+library(readr)
+library(assertr)
+library(ggplot2)
+library(corrplot)
+library(ggcorrplot)
+library(caret)
+library(ranger)
+library(randomForest)
+library(ROCR)
+library(e1071)
+library(pROC)
+library(Hmisc)
+```
+
+## Importing the dataset:
+```{r Importing the dataset and checking the class column set}
+BreastCancer <- read_csv("data/BreastCancer.csv")%>%
+  assert(in_set("benign","malignant"), Class)
+```
+
+<p> The dataset that I have choosen is the Breast Cancer Dataset. In this datsaet we have different attributes given which are related with the cancer type. We have been given the type of cancer i.e. Benign or Malignant according to the related rows.
+The idea is to perform an exploratory analysis of the information contained in the dataset, figuring out ways of making the dataset tidier. The ultimate objective is to, in the end, build and compare models to predict if a given tumor is benign or malignant (breast cancer) using the information available on this dataset. </p>
+
+
+
+
+
+
+
+
+
+

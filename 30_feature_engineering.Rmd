@@ -1,0 +1,141 @@
+---
+title: "30-feature-engineering"
+output: html_notebook
+---
+
+## Discretization Of Columns
+
+Let's look at mitoses column based on Malignant and Benign class type:
+```{r Checking Mitoses column based Class column}
+table(BreastCancer$Mitoses,BreastCancer$Class)
+```
+
+As we can see that most of the rows of both benign and malignant in Mitoses are in proprotion after 2. So we can group these values together.
+
+```{r Function for discretization of Mitoses}
+adjust_dicretization_1 <- function(df,from_till,col_num){
+    ifelse(df[,{{col_num}}] == {{from_till}},1,2) 
+}
+
+```
+
+
+```{r Applying function on Mitoses to make new Column}
+BreastCancer$Mitoses_adjusted_discreet = adjust_dicretization_1(BreastCancer,c(2|3|4|5|6|7|8|9|10),col_num=c(10))
+BreastCancer$Mitoses_adjusted_discreet<- as.factor(BreastCancer$Mitoses_adjusted_discreet)
+```
+
+Checking if the Mitoses_adjusted_discreet column is within bound of 1 and 2.
+```{r Checking the bounds on Mitoses_adjusted_discreet column}
+BreastCancer %>%
+  assert(in_set(1,2),Mitoses_adjusted_discreet)
+
+table(a$qwe,a$Class)
+```
+
+So, data is within bounds, and it can be verified from the table above.
+
+## Multivariate Imputation:
+
+We earlier found that there were 16 NA value in Bare.Nuclei. Let's Impute those NA vales using Hmisc library's impute function.
+
+```{r Function for Imputing NA values}
+mult_impute <- function(df) {
+  return(with(df,impute(Bare.nuclei,"random")))
+}
+```
+
+Let's apply the impute function : 
+```{r Imputing NA values in Bare.nuclei Column using impute function}
+BreastCancer$Bare.nuclei_imputed<-mult_impute(df = BreastCancer)
+```
+
+Let's test NA values and bounds of Bare.nuclei_imputed:
+```{r testing NA values and bounds in Bare.nuclei_imputed}
+BreastCancer %>%
+  assert(within_bounds(1,10),Bare.nuclei_imputed) %>%
+  verify(not_na(Bare.nuclei_imputed))
+```
+So, we can see that there is no NA values left in Bare.nuclei_imputed Column.
+
+## One-Hot Encoding on the Class Column: 
+We know that ML algorithms perform and predict better when they are fed integer or factor values. In this dataset we are trying to predict class of cancer i.e. Malignant or Benign cancer. We can perform One-Hot Encoding on this column to get binary values. 
+
+```{r One-Hot-Encoding Function}
+one_hot_encoding <- function(df,col_name,on){
+  ifelse(df[,{{col_name}}]=={{on}}, 0, 1)
+}
+```
+
+Now, Let's apply the function:
+```{r Applying Function to get prediction column}
+BreastCancer$Diagnosis <- one_hot_encoding(BreastCancer,'Class','benign')
+BreastCancer$Diagnosis <- as.factor(BreastCancer$Diagnosis)
+```
+
+Let's check the new column to be in bound 0 and 1.
+```{r Checking if Diagnosis column in bounds 0 and 1}
+BreastCancer %>%
+  assert(in_set(0,1),Diagnosis)
+```
+
+So, we can see that above function is within specified set.
+
+## Mean_Normalisation:
+
+First let's select the columns we want for prediction and make a new dataframe. (Always put the column on which we want prediction to be first.)
+```{r Selecting the columns we want for ML algorithm}
+Clean_BreastCancer <- BreastCancer %>%
+  select(Diagnosis,Cl.thickness:Epith.c.size,Bl.cromatin,Normal.nucleoli,Mitoses_adjusted_discreet,Bare.nuclei_imputed)
+```
+
+Mean normalisation is technique to scale data between -1 and 1 with μ=0.<br>
+Let's create a function for this:
+
+```{r Function for mean_normalization}
+mean_norm <- function(x){
+  (x-mean(x,na.rm = T))/(max(x)-min(x))
+}
+
+normalize_columns <- function(df, vars) { 
+  df %>%
+    mutate_at(vars,list(mean_norm = scale)) %>%
+    select(Diagnosis,contains("_dep"),everything())
+}
+```
+
+Let's do the mean_normalisation:
+```{r Mean_normalisation}
+select_cols<- c("Cl.thickness","Cell.shape","Cell.size","Marg.adhesion","Epith.c.size","Bl.cromatin","Normal.nucleoli","Bare.nuclei_imputed")
+Clean_BreastCancer <- Clean_BreastCancer%>%
+  normalize_columns(select_cols)
+```
+
+Let's get the datset with the columns required for ML algorithm:
+```{r Getting the required column and saving those in new variable}
+Clean_norm_BreastCancer <- Clean_BreastCancer %>%
+  select(Diagnosis,Mitoses_adjusted_discreet,Cl.thickness_mean_norm:Cell.size_mean_norm)
+```
+
+
+Let's save this in csv file:
+```{r Saving the Dataset as .csv file}
+write.csv(Clean_norm_BreastCancer, file = "data/Clean_norm_BreastCancer.csv")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,143 @@
+---
+title: "20-explore"
+output: html_notebook
+---
+
+## Let's check some boundations and values for the dataset .... 
+
+```{r Verifying Id column to have NA and unique values }
+BreastCancer %>%
+  verify(not_na(Id)) %>%
+  verify(is_uniq(Id))
+```
+
+As we can see in above that test failed 100 times. <br>
+Reason: As test is to be done on both so a subbject can have 2 same id's. <br>
+
+Let's test NA values and bounds of Cl.thickness:
+```{r testing NA values and bounds in Cl.thickness}
+BreastCancer %>%
+  assert(within_bounds(1,10),Cl.thickness) %>%
+  verify(not_na(Cl.thickness))
+```
+
+As we can see above, our test passed, so there are no NA values in the Cl.thickness and the values are in the bounds of 1 and 10. <br>
+ 
+Let's test NA values and bounds of Cell.size:
+```{r testing NA values and bounds in Cell.size}
+BreastCancer %>%
+  assert(within_bounds(1,10),Cell.size) %>%
+  verify(not_na(Cell.size))
+```
+
+As we can see above, our test passed, so there are no NA values in the Cell.size and the values are in the bounds of 1 and 10.<br>
+
+Let's test NA values and bounds of Cell.shape:
+```{r testing NA values and bounds in Cell.shape}
+BreastCancer %>%
+  assert(within_bounds(1,10),Cell.shape) %>%
+  verify(not_na(Cell.shape))
+```
+
+As we can see above, our test passed, so there are no NA values in the Cell.shape and the values are in the bounds of 1 and 10.<br>
+
+Let's test NA values and bounds of Marg.adhesion:
+```{r testing NA values and bounds in Marg.adhesion}
+BreastCancer %>%
+  assert(within_bounds(1,10),Marg.adhesion) %>%
+  verify(not_na(Marg.adhesion))
+```
+
+As we can see above, our test passed, so there are no NA values in the Marg.adhesion and the values are in the bounds of 1 and 10.<br>
+
+Let's test NA values and bounds of Epith.c.size:
+```{r testing NA values and bounds in Epith.c.size}
+BreastCancer %>%
+  assert(within_bounds(1,10),Epith.c.size) %>%
+  verify(not_na(Epith.c.size))
+```
+
+As we can see above, our test passed, so there are no NA values in the Epith.c.size and the values are in the bounds of 1 and 10.<br>
+
+Let's test NA values and bounds of Bare.nuclei:
+```{r testing NA values and bounds in Bare.nuclei}
+BreastCancer %>%
+  assert(within_bounds(1,10),Bare.nuclei) %>%
+  verify(not_na(Bare.nuclei))
+```
+
+As we can see above, our test passed for the bound to be in between 1 and 10 but failed for not_NA values. There are totla of 16 rows which contain NA values in Bare.nuclei.<br>
+
+Let's test NA values and bounds of Bl.cromatin:
+```{r testing NA values and bounds in Bl.cromatin}
+BreastCancer %>%
+  assert(within_bounds(1,10),Bl.cromatin) %>%
+  verify(not_na(Bl.cromatin))
+```
+As we can see above, our test passed, so there are no NA values in the Bl.cromatin and the values are in the bounds of 1 and 10.<br>
+
+Let's test NA values and bounds of Normal.nucleoli:
+```{r testing NA values and bounds in Normal.nucleoli}
+BreastCancer %>%
+  assert(within_bounds(0,10),Normal.nucleoli) %>%
+  verify(not_na(Normal.nucleoli))
+```
+As we can see above, our test passed, so there are no NA values in the Normal.nucleoli and the values are in the bounds of 1 and 10.<br>
+
+Let's test NA values and bounds of Mitoses:
+```{r testing NA values and bounds in Mitoses}
+BreastCancer %>%
+  assert(within_bounds(0,10),Mitoses) %>%
+  verify(not_na(Mitoses))
+```
+
+As we can see above, our test passed, so there are no NA values in the Mitoses and the values are in the bounds of 1 and 10.<br>
+
+Let's test NA values for Class:
+```{r testing NA values in Class}
+BreastCancer %>%
+  verify(not_na(Class))
+```
+
+As we can see above, our test passed, so there are no NA values in the Class.<br>
+
+So, From testing certain bounds and NA values in the datset we found out that there are total of 16 rows where Bare.Nuclei is NA.<br>
+
+We can either remove those NA values to clean the dataset or we can use Capping or Windsorisation technique (feature engineering technique) to fill those values.<br>
+Let's explore more about the dataset to find outliers and if there are any, find out the way to deal with them.<br>
+
+## Exploratory Data Analysis:
+
+Let's fimd out how many Class values are in the dataset:
+```{r Count of Class}
+BreastCancer %>%
+  ggplot(aes(x = Class,)) + 
+  geom_bar(fill = "steelblue", color = "black")+ 
+  geom_text(stat = "Count", aes(label = ..count..), vjust = -0.4)+
+  labs(title = "Barplot of Breast_Cancer Dataset Class Column", x = "Class", y = "Count")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+```
+
+We fid that there are 2 Class (Benign and Malignant cancer) and there are total of 458 benign cancer records and 241 malignant records.
+
+Let's find out about the outliers in the dataset on all parameters that are realted to cancer.
+```{r Finding outliers in all columns that can help in predicting Cancer}
+ggplot(stack(BreastCancer[,2:10]), aes(x = ind, y = values)) + 
+  geom_boxplot(na.rm=T) + 
+  theme(axis.text.x = element_text(angle = 50, hjust = 1, vjust=1)) +
+  labs(title = "Boxplots of Breast_Cancer Dataset Columns", x = "", y = "Values") + 
+  scale_y_continuous(breaks = seq(1, 10, by = 1))
+```
+
+We can infer from the above graph that several columns have outliers, with <b> Mitoses</b> having the most outliers. We can do feature engineering to remove those outliers.<br>
+There are many ways to get rid of those outliers like--
+<li> Capping </li>
+<li> Windsorisation </li>
+<li> Equal length discretisation </li> 
+
+
+
+
+
+

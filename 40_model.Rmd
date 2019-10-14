@@ -1,0 +1,27 @@
+---
+title: "40-model"
+output: html_notebook
+---
+
+## Splitting the data for train and test:
+```{r Splitting the datset}
+set.seed(44)
+data_index <- createDataPartition(Clean_norm_BreastCancer$Diagnosis, p=0.7 , list=F)
+train <- Clean_norm_BreastCancer[data_index, 1:10]
+test <- Clean_norm_BreastCancer[-data_index,1:10]
+```
+
+## Random Forest : 
+```{r Applying Random Forest on the cleaned datset}
+model_rf <- train(Diagnosis ~., data = train, 
+                  method = "ranger")
+
+```
+
+Printing out the Confusion Matrix and Accuracy:
+```{r Accuracy and Confusion Matrix}
+pred_rf <- predict(model_rf,test)
+cm_rf <- confusionMatrix(pred_rf,test$Diagnosis,positive = '1')
+cm_rf
+```
+
